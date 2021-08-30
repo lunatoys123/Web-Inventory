@@ -140,7 +140,7 @@ include('session.php');
         <div class="container">
             <ul class="pagination">
                 <li class="page-item disabled"><button class="page-link" @click="previousPage" :disabled="isFirstPage">Previous</button></li>
-                <li class="page-item"><input type="text" class="form-control-inline" style="width:40px;" v-model="currentPage" disabled /></li>
+                <li class="page-item"><input type="number" class="form-control-inline" style="width:40px;" v-model="currentPage" @change="PageNumber" /></li>
                 <li class="page-item"><input type="text" class="form-control-inline" style="width:50px; " v-model="showPage" disabled /></li>
                 <li class="page-item"><button class="page-link" @click="nextPage" :disabled="isLastPage">Next</button></li>
                 <!--<li class="page-item"><button class="page-link" @click="GetAllId">update all</button>-->
@@ -367,6 +367,16 @@ include('session.php');
 
             nextPage: function() {
                 this.currentPage++;
+                this.fetchEquipment();
+            },
+
+            PageNumber: function(){
+                if(this.isLastPage){
+                    this.currentPage = Math.ceil(this.numOfRecord / this.offset);
+                }else if(this.isFirstPage){
+                    this.currentPage = 1;
+                }
+
                 this.fetchEquipment();
             }
 

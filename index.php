@@ -288,7 +288,9 @@ if (isset($_POST['summary'])) {
                                         </div>
                                         <div class="form-group">
                                             <label for="name">Name</label>
-                                            <input type="text" class="form-control" v-model="name" ref="name" disabled />
+                                            <select class="form-control" id="name" ref="name" v-model="targetName">
+                                                <option v-for="name in allname" v-bind:value="name" :selected="name == targetName">{{name}}</option>
+                                            </select>
                                         </div>
                                         <div class="form-group">
                                             <label for="Type">Type</label>
@@ -379,10 +381,10 @@ if (isset($_POST['summary'])) {
             <div class="container">
                 <ul class="pagination">
                     <li class="page-item disabled"><button class="page-link" @click="previousPage" :disabled="isFirstPage">Previous</button></li>
-                    <li class="page-item"><input type="text" class="form-control-inline" style="width:40px;" v-model="currentPage" disabled /></li>
+                    <li class="page-item"><input type="number" class="form-control-inline" style="width:80px;" v-model="currentPage" @change="PageNumber"/></li>
                     <li class="page-item"><input type="text" class="form-control-inline" style="width:50px; " v-model="showPage" disabled /></li>
                     <li class="page-item"><button class="page-link" @click="nextPage" :disabled="isLastPage">Next</button></li>
-                    <!--<li class="page-item"><button class="page-link" @click="GetAllId">update all</button>-->
+                    <li class="page-item"><button class="page-link" @click="GetAllId">update all</button>
                 </ul>
             </div>
         </div>
@@ -402,7 +404,7 @@ if (isset($_POST['summary'])) {
             allModel: '',
             allSerial: '',
             allId: '',
-            name: '',
+            allname: '',
             hiddenId: '',
             myModel: false,
             actionButton: 'Insert',
@@ -453,7 +455,7 @@ if (isset($_POST['summary'])) {
                 this.hiddenId = '';
                 this.targetDivision = '';
                 this.targetPost = '';
-                this.name = '';
+                this.targetName = '';
                 this.targetType = '';
                 this.targetModel = '';
                 this.targetSerial = '';
@@ -474,7 +476,7 @@ if (isset($_POST['summary'])) {
                     applications.hiddenId = response.data.Items_ID;
                     applications.targetDivision = response.data.owner_division;
                     applications.targetPost = response.data.owner_post;
-                    applications.name = response.data.owner_name;
+                    applications.targetName = response.data.owner_name;
                     applications.targetType = response.data.Type;
                     applications.targetModel = response.data.Model;
                     applications.targetSerial = response.data.Serial;
@@ -513,7 +515,7 @@ if (isset($_POST['summary'])) {
                 } else if (applications.actionButton == 'update') {
 
                     await applications.getOnwerID();
-
+                    console.log(applications.owner_ID);
                     await axios.post('action.php', {
                         action: 'update',
                         owner_ID: this.owner_ID,
@@ -670,13 +672,17 @@ if (isset($_POST['summary'])) {
 
             },
             changename: async function() {
+                console.log( this.targetDivision);
                 await axios.post('action.php', {
                     action: 'changeName',
                     division: this.targetDivision,
                     post: this.targetPost
                 }).then(function(response) {
                     console.log(response);
-                    applications.name = response.data.owner_name;
+                    if(applications.actionButton == 'Insert'){
+                        applications.targetName = response.data[0];
+                    }
+                    applications.allname = response.data;
                 });
             },
 
@@ -695,11 +701,14 @@ if (isset($_POST['summary'])) {
             },
 
             getOnwerID: async function() {
+                console.log(this.targetDivision);
+                console.log(this.targetName);
+                console.log(this.targetPost);
                 await axios.post('action.php', {
                     action: 'getOwnerID',
                     division: this.targetDivision,
                     post: this.targetPost,
-                    name: this.name
+                    name: this.targetName
                 }).then(function(response) {
                     console.log(response);
                     applications.owner_ID = response.data[0];
@@ -763,7 +772,7 @@ if (isset($_POST['summary'])) {
                 for (var i = 0; i < applications.allId.length; i++) {
                     this.update(applications.allId[i]);
                 }
-
+                this.fetchAllData();
                 alert('update all successful');
             },
 
@@ -785,6 +794,16 @@ if (isset($_POST['summary'])) {
                 this.targetmaintenance = '';
                 this.actionButton = "submit result";
                 await this.initialEquipment();
+            },
+
+            PageNumber: function(){
+                if(this.isLastPage){
+                    this.currentPage = Math.ceil(this.allDataCount / this.numberOfPage);
+                }else if(this.isFirstPage){
+                    this.currentPage = 1;
+                }
+
+                this.fetchAllData();
             }
 
         },

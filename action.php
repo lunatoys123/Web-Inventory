@@ -161,17 +161,23 @@ if ($received_data->action == 'fetchall') {
 
     echo json_encode($data);
 } else if ($received_data->action == 'changeName') {
-    $data = array(
+    /*$data = array(
         ':owner_division' => $received_data->division,
         ':owner_post' => $received_data->post
-    );
-    $query = "SELECT owner_name from owners where owner_division= :owner_division and owner_post=:owner_post";
+    );*/
+    $query = "SELECT owner_name from owners where owner_division=? and owner_post=? ";
     $statement = $conn->prepare($query);
-    $statement->execute($data);
-    $result = $statement->fetchAll();
+    $statement->bindParam(1, $received_data->division);
+    $statement->bindParam(2, $received_data->post);
+    $statement->execute();
+    //$result = $statement->fetchAll();
 
-    foreach ($result as $row) {
-        $data['owner_name'] = $row['owner_name'];
+    //foreach ($result as $row) {
+      //  $data['owner_name'] = $row['owner_name'];
+    //}
+
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        array_push($data, $row['owner_name']);
     }
 
     echo json_encode($data);
@@ -408,7 +414,7 @@ if ($received_data->action == 'fetchall') {
 
     echo json_encode($data);
 } else if ($received_data->action == 'addUser') {
-    $query = "INSERT INTO owners values(null, ?, ?, ?)";
+    $query = "INSERT INTO owners values(null, ?, ?, ?, '','','')";
     $statement = $conn->prepare($query);
     $statement->bindParam(1, $received_data->name);
     $statement->bindParam(2, $received_data->post);
@@ -418,6 +424,11 @@ if ($received_data->action == 'fetchall') {
     $data = array('message' => 'User insert');
     echo json_encode($data);
 } else if ($received_data->action == 'DeleteUser') {
+    $query="DELETE from inventory where owner_id = ?";
+    $statement = $conn->prepare($query);
+    $statement->bindParam(1, $received_data->id);
+    $statement->execute();
+
     $query = "DELETE from owners where owner_id = ?";
     $statement = $conn->prepare($query);
     $statement->bindParam(1, $received_data->id);
