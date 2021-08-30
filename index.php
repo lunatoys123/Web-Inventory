@@ -384,7 +384,7 @@ if (isset($_POST['summary'])) {
                     <li class="page-item"><input type="number" class="form-control-inline" style="width:80px;" v-model="currentPage" @change="PageNumber"/></li>
                     <li class="page-item"><input type="text" class="form-control-inline" style="width:50px; " v-model="showPage" disabled /></li>
                     <li class="page-item"><button class="page-link" @click="nextPage" :disabled="isLastPage">Next</button></li>
-                    <li class="page-item"><button class="page-link" @click="GetAllId">update all</button>
+                    <!--<li class="page-item"><button class="page-link" @click="GetAllId">update all</button>-->
                 </ul>
             </div>
         </div>
