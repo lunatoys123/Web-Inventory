@@ -768,12 +768,12 @@ if (isset($_POST['summary'])) {
                     console.log(response);
                     applications.allId = response.data;
                 });
-
-                for (var i = 0; i < applications.allId.length; i++) {
-                    this.update(applications.allId[i]);
+                console.log(appliations.allId);
+                /*for (var i = 0; i < this.allId.length; i++) {
+                    this.update(this.allId[i]);
                 }
-                this.fetchAllData();
-                alert('update all successful');
+                await this.fetchAllData();
+                alert('update all successful');*/
             },
 
             update: async function(id) {
